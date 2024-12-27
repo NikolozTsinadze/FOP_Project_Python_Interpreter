@@ -6,45 +6,74 @@ public class PythonInterpreter {
 
     public void eval(String code) {
         String[] lines = code.split("\n");
-        boolean inIfBlock = false;
-        int indentationLevel = 0;
+        int lineIndex = 0;
 
-        for (String line : lines) {
-            line = line.trim();
+        while (lineIndex < lines.length) {
+            String line = lines[lineIndex].trim();
 
-            if (line.isEmpty()) continue;
-
-            // Handle if statement
-            if (line.startsWith("if ")) {
-                inIfBlock = handleIfStatement(line);
-                indentationLevel = line.length() - line.trim().length(); // Update indentation level
-            } else if (inIfBlock && getIndentationLevel(line) > indentationLevel) {
-                // In an if block, execute lines with greater indentation
-                if (line.contains("=")) {
-                    handleAssignment(line);
-                } else if (line.startsWith("print(")) {
-                    handlePrint(line);
-                }
-            } else if (getIndentationLevel(line) <= indentationLevel) {
-                // End of if block when indentation level decreases
-                inIfBlock = false;
-                if (line.contains("=")) {
-                    handleAssignment(line);
-                } else if (line.startsWith("print(")) {
-                    handlePrint(line);
-                }
+            if (line.isEmpty()) {
+                lineIndex++;
+                continue;
             }
+
+            // Handle assignment
+            if (line.contains("=") && !line.startsWith("if") && !line.startsWith("while")) {
+                handleAssignment(line);
+            }
+            // Handle print statement
+            else if (line.startsWith("print(")) {
+                handlePrint(line);
+            }
+            // Handle if statement
+            else if (line.startsWith("if ")) {
+                boolean conditionResult = handleIfStatement(line);
+                int indentationLevel = getIndentationLevel(lines[lineIndex]);
+                lineIndex++;
+
+                // Process the block if condition is true
+                while (lineIndex < lines.length && getIndentationLevel(lines[lineIndex]) > indentationLevel) {
+                    if (conditionResult) {
+                        eval(lines[lineIndex]);
+                    }
+                    lineIndex++;
+                }
+                continue;
+            }
+            // Handle while statement
+            else if (line.startsWith("while ")) {
+                int startLineIndex = lineIndex;
+                boolean conditionResult = evaluateCondition(line.substring(6).trim());
+                int indentationLevel = getIndentationLevel(lines[lineIndex]);
+                lineIndex++;
+
+                while (conditionResult) {
+                    int tempLineIndex = lineIndex;
+
+                    while (tempLineIndex < lines.length && getIndentationLevel(lines[tempLineIndex]) > indentationLevel) {
+                        eval(lines[tempLineIndex]);
+                        tempLineIndex++;
+                    }
+
+                    conditionResult = evaluateCondition(line.substring(6).trim());
+                }
+
+                // Skip the while block after execution
+                while (lineIndex < lines.length && getIndentationLevel(lines[lineIndex]) > indentationLevel) {
+                    lineIndex++;
+                }
+                continue;
+            }
+
+            lineIndex++;
         }
     }
 
     private boolean handleIfStatement(String line) {
         String condition = line.substring(3).trim(); // Remove 'if '
-        boolean conditionResult = evaluateCondition(condition);
-        return conditionResult; // True if condition is non-zero
+        return evaluateCondition(condition);
     }
 
     private boolean evaluateCondition(String condition) {
-        // Evaluate comparison expressions like x < y, x == y, etc.
         String[] comparisonOperators = {"<", ">", "==", "<=", ">=", "!="};
         for (String operator : comparisonOperators) {
             if (condition.contains(operator)) {
@@ -68,7 +97,7 @@ public class PythonInterpreter {
                 }
             }
         }
-        return false; // Default to false if no comparison is found
+        return false;
     }
 
     private void handleAssignment(String line) {
@@ -81,12 +110,11 @@ public class PythonInterpreter {
 
     private void handlePrint(String line) {
         String content = line.substring(line.indexOf('(') + 1, line.lastIndexOf(')')).trim();
-        int value = evaluateExpression(content); // Evaluate the expression inside print
+        int value = evaluateExpression(content);
         System.out.println(value);
     }
 
     private int evaluateExpression(String expression) {
-        // If the expression contains parentheses, evaluate them first
         while (expression.contains("(")) {
             int startIdx = expression.lastIndexOf("(");
             int endIdx = expression.indexOf(")", startIdx);
@@ -95,26 +123,23 @@ public class PythonInterpreter {
             expression = expression.substring(0, startIdx) + subResult + expression.substring(endIdx + 1);
         }
 
-        // Replace variables with their actual values
         for (String varName : variables.keySet()) {
             expression = expression.replace(varName, String.valueOf(variables.get(varName)));
         }
 
-        // Handle arithmetic operations: +, -, *, /
         String[] addSubTerms = expression.split("(?=[+-])|(?<=[+-])");
         int result = 0;
-        int sign = 1; // to handle positive and negative numbers
+        int sign = 1;
 
         for (String term : addSubTerms) {
             term = term.trim();
             if (term.isEmpty()) continue;
 
             if (term.equals("+")) {
-                sign = 1; // Positive sign
+                sign = 1;
             } else if (term.equals("-")) {
-                sign = -1; // Negative sign
+                sign = -1;
             } else {
-                // Now handle multiplication and division within each term
                 String[] mulDivTerms = term.split("(?=[*/])|(?<=[*/])");
                 int termResult = 1;
                 boolean multiplication = false;
@@ -142,21 +167,9 @@ public class PythonInterpreter {
                 result += sign * termResult;
             }
         }
-
-        // Handle comparisons after arithmetic calculations
-        if (expression.contains("<") || expression.contains(">") || expression.contains("==") ||
-                expression.contains("<=") || expression.contains(">=") || expression.contains("!=")) {
-            if (evaluateCondition(expression)) {
-                return 1; // Condition is true
-            } else {
-                return 0; // Condition is false
-            }
-        }
-
         return result;
     }
 
-    // A method to check the indentation level of the current line
     private int getIndentationLevel(String line) {
         int indent = 0;
         while (line.startsWith(" ")) {
@@ -169,17 +182,13 @@ public class PythonInterpreter {
     public static void main(String[] args) {
         PythonInterpreter interpreter = new PythonInterpreter();
 
-        // Program with nested if statements and more complex expressions
         String program = """
-            a = 10
+            a = 12
             b = 5
-            c = 15
-            if a > b
-                if c > a
-                    d = c - a
-                    print(d)
-                print(a + b)
-            print(c)
+            while a > 0
+                print(a)
+                a = a - 1
+            print(b)
         """;
 
         interpreter.eval(program);
