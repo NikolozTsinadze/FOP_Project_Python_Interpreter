@@ -45,7 +45,7 @@ public class PythonInterpreter {
                             conditionMet = true; // Mark as executed
                         }
                     } else {
-                        if (conditionResult) {
+                        if (conditionResult && !conditionMet) {
                             evalLine(currentLine); // Execute the block for the matched condition
                             conditionMet = true;
                         }
@@ -115,34 +115,6 @@ public class PythonInterpreter {
     private boolean handleElifStatement(String line) {
         String condition = line.substring(4, line.length() - 1).trim();
         return evaluateCondition(condition);
-    }
-
-    private boolean evaluateCondition(String condition) {
-        String[] comparisonOperators = {">=", "<=", ">", "<", "==", "!="};
-
-        for (String operator : comparisonOperators) {
-            if (condition.contains(operator)) {
-                String[] parts = condition.split(operator);
-                int leftValue = evaluateExpression(parts[0].trim());
-                int rightValue = evaluateExpression(parts[1].trim());
-
-                switch (operator) {
-                    case "<":
-                        return leftValue < rightValue;
-                    case ">":
-                        return leftValue > rightValue;
-                    case "==":
-                        return leftValue == rightValue;
-                    case "<=":
-                        return leftValue <= rightValue;
-                    case ">=":
-                        return leftValue >= rightValue;
-                    case "!=":
-                        return leftValue != rightValue;
-                }
-            }
-        }
-        return false;
     }
 
     private void handleAssignment(String line) {
@@ -225,6 +197,34 @@ public class PythonInterpreter {
         return result;
     }
 
+    private boolean evaluateCondition(String condition) {
+        String[] comparisonOperators = {">=", "<=", ">", "<", "==", "!="};
+
+        for (String operator : comparisonOperators) {
+            if (condition.contains(operator)) {
+                String[] parts = condition.split(operator);
+                int leftValue = evaluateExpression(parts[0].trim());
+                int rightValue = evaluateExpression(parts[1].trim());
+
+                switch (operator) {
+                    case "<":
+                        return leftValue < rightValue;
+                    case ">":
+                        return leftValue > rightValue;
+                    case "==":
+                        return leftValue == rightValue;
+                    case "<=":
+                        return leftValue <= rightValue;
+                    case ">=":
+                        return leftValue >= rightValue;
+                    case "!=":
+                        return leftValue != rightValue;
+                }
+            }
+        }
+        return false;
+    }
+
     private int getIndentationLevel(String line) {
         int indent = 0;
         while (line.startsWith(" ")) {
@@ -238,16 +238,11 @@ public class PythonInterpreter {
         PythonInterpreter interpreter = new PythonInterpreter();
 
         String program = """
-x = 10
-if x > 5:
-    y = x + 5
-elif x == 5:
-    y = x * 2
-else:
-    y = x - 3
-print(y)
+
         """;
 
         interpreter.eval(program);
     }
 }
+//        In this patch, we fixed the issue where the code was written with incorrect syntax.
+//        For example, previously, the code couldn't handle a colon (':') at the end of statements.
