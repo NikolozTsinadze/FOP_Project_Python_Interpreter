@@ -25,34 +25,29 @@ public class PythonInterpreter {
                 handlePrint(line);
             }
             // Handle if statement
-            else if (line.startsWith("if ")) {
+            else if (line.startsWith("if ") && line.endsWith(":")) {
                 boolean conditionResult = handleIfStatement(line);
                 int indentationLevel = getIndentationLevel(lines[lineIndex]);
                 lineIndex++;
 
+                boolean conditionMet = false;
                 // Process the block if condition is true
-                boolean skipElse = false;
-                boolean skipElif = false;
-
                 while (lineIndex < lines.length && getIndentationLevel(lines[lineIndex]) > indentationLevel) {
                     String currentLine = lines[lineIndex].trim();
 
-                    if (currentLine.startsWith("elif")) {
-                        if (!conditionResult && !skipElif) {
-                            conditionResult = handleIfStatement(currentLine);
-                            skipElif = true;
+                    if (currentLine.startsWith("elif") && currentLine.endsWith(":")) {
+                        if (!conditionMet) {
+                            conditionMet = handleElifStatement(currentLine);
                         }
-                    } else if (currentLine.startsWith("else")) {
-                        if (conditionResult) {
-                            skipElse = true;
-                        } else {
-                            evalLine(currentLine);
+                    } else if (currentLine.startsWith("else") && currentLine.endsWith(":")) {
+                        if (!conditionMet) {
+                            evalBlock(lines, lineIndex, indentationLevel);
+                            conditionMet = true; // Mark as executed
                         }
                     } else {
-                        if (!skipElse) {
-                            if (conditionResult) {
-                                evalLine(currentLine);
-                            }
+                        if (conditionResult) {
+                            evalLine(currentLine); // Execute the block for the matched condition
+                            conditionMet = true;
                         }
                     }
                     lineIndex++;
@@ -60,9 +55,9 @@ public class PythonInterpreter {
                 continue;
             }
             // Handle while statement
-            else if (line.startsWith("while ")) {
+            else if (line.startsWith("while ") && line.endsWith(":")) {
                 int indentationLevel = getIndentationLevel(lines[lineIndex]);
-                boolean conditionResult = evaluateCondition(line.substring(6).trim());
+                boolean conditionResult = evaluateCondition(line.substring(6, line.length() - 1).trim());
                 lineIndex++;
 
                 while (conditionResult) {
@@ -83,7 +78,7 @@ public class PythonInterpreter {
                         break;
                     }
 
-                    conditionResult = evaluateCondition(line.substring(6).trim());
+                    conditionResult = evaluateCondition(line.substring(6, line.length() - 1).trim());
                 }
 
                 while (lineIndex < lines.length && getIndentationLevel(lines[lineIndex]) > indentationLevel) {
@@ -104,8 +99,21 @@ public class PythonInterpreter {
         }
     }
 
+    private void evalBlock(String[] lines, int startLine, int indentationLevel) {
+        int lineIndex = startLine + 1;
+        while (lineIndex < lines.length && getIndentationLevel(lines[lineIndex]) > indentationLevel) {
+            evalLine(lines[lineIndex].trim());
+            lineIndex++;
+        }
+    }
+
     private boolean handleIfStatement(String line) {
-        String condition = line.substring(3).trim();
+        String condition = line.substring(3, line.length() - 1).trim();
+        return evaluateCondition(condition);
+    }
+
+    private boolean handleElifStatement(String line) {
+        String condition = line.substring(4, line.length() - 1).trim();
         return evaluateCondition(condition);
     }
 
@@ -230,25 +238,16 @@ public class PythonInterpreter {
         PythonInterpreter interpreter = new PythonInterpreter();
 
         String program = """
-            num = 30
-            result = num
-            
-            if num <= 1
-                result = 0
-            else
-                i = 2
-                while i * i <= num
-                    if num % i == 0
-                        result = 0
-                        break
-                    i = i + 1
-            
-            print(result)
+x = 10
+if x > 5:
+    y = x + 5
+elif x == 5:
+    y = x * 2
+else:
+    y = x - 3
+print(y)
         """;
 
         interpreter.eval(program);
     }
 }
-//        In this patch, we introduced else and elif statements.
-//        Additionally, the code has been updated to handle all arithmetic operations,
-//        including addition (+), subtraction (-), multiplication (*), division (/), modulo (%), and floor division (//).
