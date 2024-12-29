@@ -236,13 +236,150 @@ public class PythonInterpreter {
 
     public static void main(String[] args) {
         PythonInterpreter interpreter = new PythonInterpreter();
+        String program1 = """
+n = 10
+sum = 0
+i = 1
+while i <= n:
+    sum = sum + i
+    i = i + 1
+print(sum)
+""";
+        interpreter.eval(program1);
+//
+//        System.out.println("----------------------------");
+//
+//
+//        String program2 = """
+//n = 5
+//factorial = 1
+//i = 1
+//while i <= n:
+//    factorial = factorial * i
+//    i = i + 1
+//print(factorial)
+//""";
+//        interpreter.eval(program2);
+//
+//        System.out.println("----------------------------");
+//
+//        String program3 = """
+//a = 48
+//b = 18
+//while b != 0:
+//    temp = b
+//    b = a % b
+//    a = temp
+//print(a)
+//""";
+//        interpreter.eval(program3);
+//
+//        System.out.println("----------------------------");
+//
+//        String program4 = """
+//n = 1234
+//reverse = 0
+//while n > 0:
+//    digit = n % 10
+//    reverse = reverse * 10 + digit
+//    n = n // 10
+//print(reverse)
+//""";
+//        interpreter.eval(program4);
+//
+//        System.out.println("----------------------------");
+//
+//        String program5 = """
+//n = 29
+//i = 2
+//while i * i <= n:
+//    if n % i == 0:
+//        print(0)
+//        break
+//    i = i + 1
+//else:
+//    print(1)
+//""";
+//        interpreter.eval(program5);
+//
+//        System.out.println("----------------------------");
+//
+//        String program6 = """
+//n = 121
+//original = n
+//reverse = 0
+//while n > 0:
+//    digit = n % 10
+//    reverse = reverse * 10 + digit
+//    n = n // 10
+//if reverse == original:
+//    print(1)
+//else:
+//    print(0)
+//""";
+//        interpreter.eval(program6);
+//
+//        System.out.println("----------------------------");
+//
+//        String program7 = """
+//n = 83756
+//largest = 0
+//while n > 0:
+//    digit = n % 10
+//    if digit > largest:
+//        largest = digit
+//    n = n // 10
+//print(largest)
+//""";
+//        interpreter.eval(program7);
+//
+//        System.out.println("----------------------------");
+//
+//        String program8 = """
+//n = 12345
+//sum = 0
+//while n > 0:
+//    digit = n % 10
+//    sum = sum + digit
+//    n = n // 10
+//print(sum)
+//""";
+//        interpreter.eval(program8);
+//
+//        System.out.println("----------------------------");
+//
+//        String program9 = """
+//n = 7
+//i = 1
+//while i <= 10:
+//    print(n * i)
+//    i = i + 1
+//""";
+//        interpreter.eval(program9);
+//
+//        System.out.println("----------------------------");
+//
+//        String program10 = """
+//n = 7
+//a = 0
+//b = 1
+//i = 2
+//while i < n:
+//    temp = a + b
+//    a = b
+//    b = temp
+//    i = i + 1
+//print(b)
+//""";
+//        interpreter.eval(program10);
 
-        String program = """
+//        I wouldn't recomend testing multiple inputes at once, because it starts to make errores.
 
-        """;
 
-        interpreter.eval(program);
+
+
+
+
+
     }
 }
-//        In this patch, we fixed the issue where the code was written with incorrect syntax.
-//        For example, previously, the code couldn't handle a colon (':') at the end of statements.
