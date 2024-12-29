@@ -236,16 +236,16 @@ public class PythonInterpreter {
 
     public static void main(String[] args) {
         PythonInterpreter interpreter = new PythonInterpreter();
-        String program1 = """
-n = 10
-sum = 0
-i = 1
-while i <= n:
-    sum = sum + i
-    i = i + 1
-print(sum)
-""";
-        interpreter.eval(program1);
+//        String program1 = """
+//n = 10
+//sum = 0
+//i = 1
+//while i <= n:
+//    sum = sum + i
+//    i = i + 1
+//print(sum)
+//""";
+//        interpreter.eval(program1);
 //
 //        System.out.println("----------------------------");
 //
@@ -360,7 +360,7 @@ print(sum)
 //        System.out.println("----------------------------");
 //
 //        String program10 = """
-//n = 7
+//n = 6
 //a = 0
 //b = 1
 //i = 2
@@ -374,6 +374,19 @@ print(sum)
 //        interpreter.eval(program10);
 
 //        I wouldn't recomend testing multiple inputes at once, because it starts to make errores.
+
+//        1. Sum of First N Numbers                ✔
+//        2. Factorial of N                        ✔
+//        3. GCD of Two Numbers                    ✔
+//        4. Reverse a Number                      ✔
+//        5. Check if a Number is Prime            X
+//        6. Check if a Number is Palindrome       X
+//        7. Find the Largest Digit in a Number    X
+//        8. Sum of Digits                         ✔
+//        9. Multiplication Table                  ✔
+//        10. Nth Fibonacci Number                 ✔
+
+
 
 
 
